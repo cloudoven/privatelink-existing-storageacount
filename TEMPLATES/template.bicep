@@ -1,12 +1,17 @@
 
-# How to create private link to existing storage account
+@description('Location for all resources.')
+param location string = resourceGroup().location
 
-## Bicep templates
+var subscriptionId = ''
 
-### Subnet 
-Template for subnet
+var vnetId = '/subscriptions/${subscriptionId}/resourceGroups/gaga/providers/Microsoft.Network/virtualNetworks/gaga-vnet'
+var dnsZoneName = 'privatelink.blob.core.windows.net'
+var endpointName = 'privlinkmoimhawe'
+var subnetId = '/subscriptions/${subscriptionId}/resourceGroups/gaga/providers/Microsoft.Network/virtualNetworks/gaga-vnet/subnets/default'
+var nsgId = '/subscriptions/${subscriptionId}/resourceGroups/gaga/providers/Microsoft.Network/networkSecurityGroups/gaga-vnet-default-nsg-westeurope'
+var storageAccountId = '/subscriptions/${subscriptionId}/resourceGroups/gaga/providers/Microsoft.Storage/storageAccounts/moimhawe'
 
-```Bicep
+
 resource subnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' = {
   name: 'gaga-vnet/default'  
   properties: {
@@ -20,10 +25,7 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2022-01-01' = {
     }    
   }
 }
-```
 
-### Private Endpoint
-```
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
   dependsOn: [
     subnet
@@ -46,21 +48,13 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
     ]
   }
 }
-```
 
-
-### Private DNS Zone
-
-```
 resource dnszone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: dnsZoneName
   location: 'global'
 }
-```
 
 
-### VNet links
-```
 resource vnetLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   name: '${dnsZoneName}/${uniqueString(vnetId)}'  
   location: 'global'
@@ -71,12 +65,7 @@ resource vnetLinks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-0
     }
   }
 }
-```
 
-
-### DNS Zone group 
-
-```
 resource dnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2022-01-01' = {
   dependsOn: [
     privateEndpoint
@@ -93,18 +82,3 @@ resource dnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2
     ]
   }
 }
-
-```
-
-## Deploy to Azure 
-
-```
-az deployment group create --resource-group gaga --template-file .\template.bicep  
-```
-
-Finally you need to disable public access from all network using Storage firewall. The below command will do that.
-
-## Disable public access from all network (except Private link)
-```
-    az storage account update --name MyStorageAccount --resource-group MyResourceGroup --public-network-access Disabled
-```

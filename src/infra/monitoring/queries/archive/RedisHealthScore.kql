@@ -1,4 +1,0 @@
-RedisHealthStatus()
-| summarize YellowScore = max(IsYellow), RedScore = max(IsRed)
-| extend HealthScore = 1-(YellowScore*0.25)-(RedScore*0.5)
-| extend ComponentName="Redis"

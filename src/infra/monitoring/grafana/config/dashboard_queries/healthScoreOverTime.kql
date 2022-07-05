@@ -1,4 +1,0 @@
-WebsiteHealthScore
-| where $__timeFilter(TimeGenerated)
-| project TimeGenerated,HealthScore
-| order by TimeGenerated asc
